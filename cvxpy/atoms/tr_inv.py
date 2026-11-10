@@ -41,8 +41,8 @@ class tr_inv(Atom):
         # if values[0] isn't Hermitian then return np.inf
         if (LA.norm(values[0] - values[0].T.conj()) >= 1e-8):
             return np.inf
-        # take symmetric part of the input to enhance numerical stability
-        symm = (values[0] + values[0].T)/2
+        # take Hermitian part of the input to enhance numerical stability
+        symm = (values[0] + values[0].T.conj())/2
         eigVal = LA.eigvalsh(symm)
         if min(eigVal) <= 0:
             return np.inf

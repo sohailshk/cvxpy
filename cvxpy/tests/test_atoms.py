@@ -2898,6 +2898,13 @@ class TestAtoms(BaseTest):
         # where X of the naive result is I.
         self.assertTrue(prob.value < naiveRes)
 
+    def test_tr_inv_complex_value(self) -> None:
+        """tr_inv.value uses the Hermitian part of a complex argument."""
+        H = np.array([[1, 2j], [-2j, 5]])  # positive definite, tr(H^-1) = 6
+        self.assertAlmostEqual(cp.tr_inv(H).value, 6)
+        # Indefinite (eigenvalues -1 and 3) although its real part is the identity.
+        self.assertEqual(cp.tr_inv(np.array([[1, 2j], [-2j, 1]])).value, np.inf)
+
     def test_sum_tuple_axis_constraint(self) -> None:
         """Test that cp.sum with tuple axis correctly enforces constraints."""
         rng = np.random.default_rng(42)
