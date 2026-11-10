@@ -78,7 +78,7 @@ class gmatmul(Atom):
             raise ValueError(
                 "gmatmul(A, X) requires that A be a Constant or a Parameter."
             )
-        if not self.args[0].is_pos():
+        if not self.args[0].is_dgp():
             raise ValueError(
                 "gmatmul(A, X) requires that X be positive."
             )

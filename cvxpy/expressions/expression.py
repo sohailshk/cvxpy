@@ -69,7 +69,7 @@ def _pow_const_base(base, exponent):
         raise ValueError(
             "The base of b**x must be a constant when the exponent is a variable."
         )
-    if not base.is_pos():
+    if not base.is_log_log_constant():
         raise ValueError(
             "The base of b**x must be positive since we use b**x = exp(x * log(b))."
         )

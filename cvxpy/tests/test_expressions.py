@@ -1495,6 +1495,16 @@ class TestExpressions(BaseTest):
         with self.assertRaises(ValueError):
             y ** x
 
+    def test_rpow_constant_expression_base(self) -> None:
+        """The base of a**x may be any positive constant expression, not only a leaf."""
+        x = Variable()
+        for base in [cp.Constant(1.0) + 1, 2 * cp.Constant(1.0), cp.exp(cp.Constant(0.5))]:
+            prob = cp.Problem(cp.Minimize(base ** x), [x >= 1, x <= 3])
+            prob.solve(solver=cp.CLARABEL)
+            self.assertAlmostEqual(float(prob.value), float(base.value), places=3)
+        with self.assertRaisesRegex(ValueError, "must be positive"):
+            (cp.Constant(1.0) - 3) ** x
+
     def test_power_const_base(self) -> None:
         """Test cp.power(b, x) where b is constant and x is variable."""
         x = Variable()

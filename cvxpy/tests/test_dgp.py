@@ -241,6 +241,29 @@ class TestDgp(BaseTest):
         self.assertFalse(gmatmul.is_incr(0))
         self.assertFalse(gmatmul.is_decr(0))
 
+    def test_gmatmul_expression_argument(self) -> None:
+        # X may be any positive expression, not only a leaf.
+        x = cvxpy.Variable(3, pos=True)
+        A = np.array([[1., 2., 0.5], [0., 1., 1.]])
+        for arg in [x[:], 2 * x, x + 1]:
+            self.assertTrue(cvxpy.gmatmul(A, arg).is_dgp())
+
+        # A non-positive expression is rejected with the usual message.
+        y = cvxpy.Variable(3)
+        with self.assertRaises(ValueError) as cm:
+            cvxpy.gmatmul(A, y[:])
+        self.assertEqual(str(cm.exception), "gmatmul(A, X) requires that X be positive.")
+
+        # and a problem with such an argument matches the leaf version.
+        z = cvxpy.Variable(3, pos=True)
+        ref = cvxpy.Problem(cvxpy.Minimize(cvxpy.sum(z)),
+                            [cvxpy.gmatmul(A, z) >= np.array([2., 3.])])
+        ref.solve(solver=cvxpy.CLARABEL, gp=True)
+        prob = cvxpy.Problem(cvxpy.Minimize(cvxpy.sum(x)),
+                             [cvxpy.gmatmul(A, 2 * x) >= np.array([2., 3.])])
+        prob.solve(solver=cvxpy.CLARABEL, gp=True)
+        self.assertAlmostEqual(prob.value, ref.value / 2, places=3)
+
     def test_power_sign(self) -> None:
         x = cvxpy.Variable(pos=True)
         self.assertTrue((x**1).is_nonneg())
